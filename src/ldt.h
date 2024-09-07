@@ -21,7 +21,7 @@
 #include <linux/version.h>
 
 // ARM is missing asm/ldt.h in Ubuntu 11.10 (Linux 3.0, glibc-2.13)
-#if defined(__arm__) || defined(__aarch64__)
+#if defined(__arm__) || defined(__aarch64__) || defined(__riscv)
 
 /* Structure passed to `modify_ldt', 'set_thread_area', and 'clone' calls.
    This seems to have been stable since the beginning of Linux 2.6  */

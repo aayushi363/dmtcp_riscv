@@ -51,7 +51,7 @@
 #include <sys/ptrace.h>
 #endif  // ifndef PTRACE_GETEVENTMSG
 #include <stdarg.h>
-#if defined(__arm__) || defined(__aarch64__)
+#if defined(__arm__) || defined(__aarch64__) || defined(__riscv)
 struct user_desc {
   int dummy;
 };                    /* <asm/ldt.h> is missing in Ubuntu 14.04 */
