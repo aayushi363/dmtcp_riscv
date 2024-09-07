@@ -33,6 +33,13 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
+#ifdef __riscv
+// FIXME:  We should use SYS_getdents64, and not SYS_getdents for all arch's.
+// SYS_getdents not supported in riscv.
+# undef SYS_getdents
+# define SYS_getdents       SYS_getdents64
+#endif
+
 #ifdef __aarch64__
 
 // FIXME:  We should use SYS_getdents64, and not SYS_getdents for all arch's.
