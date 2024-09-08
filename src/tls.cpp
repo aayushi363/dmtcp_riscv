@@ -170,6 +170,11 @@ TLSInfo_GetTidOffset(void)
   }
 #endif
 
+#ifdef __riscv
+  offset = 208;
+  return offset;
+#endif
+
   if (glibcMinorVersion() >= 10) {
     offset = 26 * sizeof(void *); // sizeof(__padding) + sizeof(list_t)
   } else {
