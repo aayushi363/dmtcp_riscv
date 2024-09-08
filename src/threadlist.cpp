@@ -32,7 +32,7 @@
 // For i386 and x86_64, SETJMP currently has bugs.  Don't turn this
 // on for them until they are debugged.
 // Default is to use  setcontext/getcontext.
-#if defined(__arm__) || defined(__aarch64__)
+#if defined(__arm__) || defined(__aarch64__) || defined(__riscv)
 #define SETJMP /* setcontext/getcontext not defined for ARM glibc */
 #endif         // if defined(__arm__) || defined(__aarch64__)
 
@@ -146,6 +146,12 @@ save_sp(void **sp)
   asm volatile ("mov %0,sp"
                 : "=r" (*sp)
                 : : "memory");
+
+#elif defined(__riscv)
+  asm volatile ("addi %0, sp, 0"
+		  : "=r" (*sp)
+		  : : "memory");
+
 #else // if defined(__i386__) || defined(__x86_64__)
 # error "assembly instruction not translated"
 #endif // if defined(__i386__) || defined(__x86_64__)
