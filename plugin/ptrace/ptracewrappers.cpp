@@ -93,7 +93,7 @@
 // FIXME:  ARM also uses sigreturn.  however, more debugging is needed before
 // ptrace works for ARM.
 # define SIGRETURN_INST_16 -1
-#elif __aarch64__
+#elif __aarch64__ || __riscv
 # warning "TODO: Implementation for ARM64."
 
 /* AArch64 uses PTRACE_GETREGSET */
@@ -242,6 +242,11 @@ ptrace_wait_for_inferior_to_reach_syscall(pid_t inferior, int sysno)
   struct iovec iov;
   iov.iov_base = &aarch64_regs;
   iov.iov_len = sizeof(aarch64_regs);
+#elif defined(__riscv)
+  struct user_pt_regs riscv_regs;
+  struct iovec iov;
+  iov.iov_base = &riscv_regs;
+  iov.iov_len = sizeof(riscv_regs);
 #endif // if defined(__i386__) || defined(__x86_64__)
   int syscall_number;
   int status;
@@ -253,7 +258,7 @@ ptrace_wait_for_inferior_to_reach_syscall(pid_t inferior, int sysno)
     JASSERT(_real_wait4(inferior, &status, __WALL, NULL) == inferior)
       (inferior) (JASSERT_ERRNO);
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__riscv)
     JASSERT(_real_ptrace(PTRACE_GETREGS, inferior, 0, (void *)&iov) == 0)
       (inferior) (JASSERT_ERRNO);
 #else // if defined(__aarch64__)
@@ -294,6 +299,11 @@ ptrace_single_step_thread(Inferior *inferiorInfo, int isRestart)
   struct iovec iov;
   iov.iov_base = &aarch64_regs;
   iov.iov_len = sizeof(aarch64_regs);
+#elif defined(__riscv)
+  static struct user_pt_regs riscv_regs;
+  struct iovec iov;
+  iov.iov_base = &riscv_regs;
+  iov.iov_len = sizeof(riscv_regs);
 #endif // if defined(__i386__) || defined(__x86_64__)
   long peekdata;
   unsigned long addr;
@@ -318,7 +328,7 @@ ptrace_single_step_thread(Inferior *inferiorInfo, int isRestart)
       JTRACE("thread terminated by signal") (inferior);
     }
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__riscv)
     JASSERT(_real_ptrace(PTRACE_GETREGS, inferior, 0, (void *)&iov) != -1)
       (superior) (inferior) (JASSERT_ERRNO);
 #else // if defined(__aarch64__)
@@ -358,6 +368,13 @@ ptrace_single_step_thread(Inferior *inferiorInfo, int isRestart)
                             0);
     long inst = peekdata & 0xffff;
     if (inst == SIGRETURN_INST_16 && aarch64_regs.regs[0] == 0xf)
+#elif __riscv
+	    peekdata = _real_ptrace(PTRACE_PEEKDATA,
+			    	    inferior,
+				    (void *)riscv_regs.pc,
+				    0);
+    long inst = peekdata & 0xffff;
+    if (inst == SIGRETURN_INST_16 && riscv_regs.regs[0] == 0xf)
 #endif // ifdef __x86_64__
     {
       if (isRestart) { /* Restart time. */
