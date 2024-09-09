@@ -35,6 +35,7 @@ extern "C" void *calloc(size_t nmemb, size_t size)
   return retval;
 }
 
+#if 0
 extern "C" void *malloc(size_t size)
 {
   DMTCP_PLUGIN_DISABLE_CKPT();
@@ -42,6 +43,8 @@ extern "C" void *malloc(size_t size)
   DMTCP_PLUGIN_ENABLE_CKPT();
   return retval;
 }
+#endif
+
 
 extern "C" void *memalign(size_t boundary, size_t size)
 {

@@ -30,6 +30,8 @@
 #include "jalloc.h"
 #include "config.h"
 
+#include "dmtcp.h" // FIXME:  This is needed for NEXT_FNC, for _real_malloc
+
 #define ATOMIC_SHARED volatile __attribute((aligned))
 
 using namespace jalib;
@@ -38,6 +40,7 @@ static bool _initialized = false;
 JAllocArena allocArenas[MAX_ARENAS];
 static int numAllocArenas;
 
+#undef JALIB_ALLOCATOR
 #ifdef JALIB_ALLOCATOR
 
 # include <stdlib.h>
@@ -403,6 +406,7 @@ jalib::JAllocDispatcher::preExpand()
 #else // ifdef JALIB_ALLOCATOR
 
 # include <stdlib.h>
+# define _real_malloc NEXT_FNC(malloc)
 
 void *
 jalib::JAllocDispatcher::allocate(size_t n)
@@ -416,6 +420,31 @@ void
 jalib::JAllocDispatcher::deallocate(void *ptr, size_t)
 {
   ::free(ptr);
+}
+
+// In dmtcpworker.cpp, they report this info to kvdb for debugging.
+// Otherwise, this information is never used.
+void
+jalib::JAlloc::getAllocArenas(JAllocArena **arenas, int *numArenas)
+{
+  *arenas = NULL;
+  int idx = 0;
+  *numArenas = idx > MAX_ARENAS ? MAX_ARENAS : idx;
+}
+
+// Used in procselfmaps.cpp; We silence it by always returning 0.
+int
+jalib::JAllocDispatcher::numExpands()
+{
+  return 0;
+}
+
+// Used in procselfmaps.cpp
+// FIXME:  Suppose malloc->mmap is called by ProcSelfMaps::ProcSelfMaps() ?
+void
+jalib::JAllocDispatcher::preExpand()
+{
+  return;
 }
 #endif // ifdef JALIB_ALLOCATOR
 

@@ -28,7 +28,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#define JALIB_ALLOCATOR
+// FIXME: #ifndef __riscv__
+//        #define JALIB_ALLOCATOR
 
 // This is enabled by default for now to catch memory corruption bugs. We should
 // remove it once we are more comfortable with the state of the code.
