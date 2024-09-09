@@ -1210,7 +1210,8 @@ remapExistingAreasToReservedArea(RestoreInfo *rinfo,
     } else if (mtcp_strcmp(area.name, "[vvar]") == 0) {
       rinfo->currentVvarStart = area.addr;
       rinfo->currentVvarEnd = area.endAddr;
-    } else if (mtcp_strcmp(area.name, binary_name) == 0) {
+   // } else if (mtcp_strcmp(area.name, binary_name) == 0) {
+     } else if (mtcp_strcmp(area.name, binary_name)){
       MTCP_ASSERT(num_regions < MAX_MTCP_RESTART_MEM_REGIONS);
       mem_regions[num_regions++] = area;
     } else if (area.addr < (VA) &area && area.endAddr > (VA) &area) {
